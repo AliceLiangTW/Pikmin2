@@ -6,222 +6,265 @@
 <title>公司尾牙辦在大年初五</title>
 
 <style>
-:root {
-  --bg: #f3f2ef;
-  --card: #ffffff;
-  --primary: #b08968;
-  --accent: #7f5539;
-  --soft: #ede0d4;
+:root{
+  --bg:#f2f1ed;
+  --card:#ffffff;
+  --primary:#a98467;
+  --accent:#7f5539;
+  --soft:#ede0d4;
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
-  background: var(--bg);
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
+  background:var(--bg);
 }
 
-header {
-  background: var(--primary);
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
+header{
+  background:var(--primary);
+  color:#fff;
+  padding:18px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
 }
 
-.container {
-  max-width: 520px;
-  margin: auto;
-  padding: 20px;
+.nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:10px;
+  justify-content:center;
 }
 
-.question {
-  font-size: 18px;
-  margin-bottom: 20px;
+.nav button{
+  border:none;
+  background:var(--soft);
+  padding:6px 10px;
+  border-radius:10px;
+  cursor:pointer;
 }
 
-.options, .sort-box, .match-box {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.nav button.active{
+  background:var(--accent);
+  color:#fff;
 }
 
-.card {
-  background: var(--card);
-  border-radius: 18px;
-  padding: 20px;
-  text-align: center;
-  font-size: 18px;
-  box-shadow: 0 8px 18px rgba(0,0,0,.08);
-  transition: .25s;
+.container{
+  max-width:520px;
+  margin:auto;
+  padding:20px;
+  animation:fade .3s ease;
 }
 
-.card.tap {
-  background: var(--soft);
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
-.card.dragging {
-  opacity: .6;
-  transform: scale(1.05);
+.question{
+  font-size:18px;
+  margin-bottom:18px;
 }
 
-.match-row {
-  display: flex;
-  gap: 12px;
+.card{
+  background:var(--card);
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:12px;
+  text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+  transition:.2s;
+  cursor:pointer;
 }
 
-.match-left, .match-right {
-  flex: 1;
+.card.selected{background:var(--soft);}
+.card.dragging{opacity:.6; transform:scale(1.05);}
+
+button.main{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:var(--accent);
+  color:#fff;
+  font-size:16px;
 }
 
-.match-target {
-  background: var(--soft);
-  border-radius: 14px;
-  padding: 16px;
-  min-height: 56px;
-}
-
-button {
-  margin-top: 24px;
-  width: 100%;
-  padding: 16px;
-  font-size: 18px;
-  border-radius: 16px;
-  border: none;
-  background: var(--accent);
-  color: #fff;
-}
+.result{font-size:20px;text-align:center;}
+.review{font-size:14px;margin-top:10px;}
 </style>
 </head>
 
 <body>
 
 <header>💃 公司尾牙辦在大年初五 💃</header>
-<div class="container">
-  <div id="app"></div>
-</div>
+<div class="nav" id="nav"></div>
+<div class="container" id="app"></div>
 
 <script>
+
 const QUESTIONS = [
-  { type:"multi", q:"本公司經營業務相當多元，請問下列何者為經營項目？",
-    opts:["四星巨","揪打美片","卡菇","跨月大元素"],
-    ans:["四星巨","揪打美片","卡菇","跨月大元素"] },
+{type:"multi",q:"本公司經營業務相當多元，請問下列何者為經營項目？",
+ opts:["四星巨","揪打美片","卡菇","跨月大元素"],
+ ans:["四星巨","揪打美片","卡菇","跨月大元素"]},
 
-  { type:"single", q:"兵貴神速，請問下列哪一位進菇速度最快？",
-    opts:["草","毛","KU","老公"], ans:["草"] },
+{type:"single",q:"兵貴神速，請問下列哪一位進菇速度最快？",
+ opts:["草","毛","KU","老公"],ans:["草"]},
 
-  { type:"single", q:"勞闆慈悲為懷，常在大群佈施，請問勞闆揪野女人進菇的台詞是？",
-    opts:["兄弟大飯店","來來大飯店","晶華酒店","福華飯店"],
-    ans:["來來大飯店"] },
+{type:"single",q:"勞闆慈悲為懷，常在大群佈施，請問勞闆揪野女人進菇的台詞是？",
+ opts:["兄弟大飯店","來來大飯店","晶華酒店","福華飯店"],
+ ans:["來來大飯店"]},
 
-  { type:"multi", q:"請問下列哪位神秘人士尚未洩漏本名？",
-    opts:["予秧","多莉","估董","勞闆","ㄑ","地瓜","ㄟ力酥"],
-    ans:["予秧","地瓜"] },
+{type:"multi",q:"請問下列哪位神秘人士尚未洩漏本名？",
+ opts:["予秧","多莉","估董","勞闆","ㄑ","地瓜","ㄟ力酥"],
+ ans:["予秧","地瓜"]},
 
-  { type:"single", q:"公司群組吵得要命，請問下列哪個關鍵字出現最多次？",
-    opts:["坐牢","長照","拉屎","笑屎"], ans:["笑屎"] },
+{type:"single",q:"公司群組吵得要命，請問下列哪個關鍵字出現最多次？",
+ opts:["坐牢","長照","拉屎","笑屎"],ans:["笑屎"]},
 
-  { type:"sort", q:"請將本公司成員的現居住地，由南到北依序排列：",
-    items:["捏","ㄑ","瓜","酥"],
-    ans:["捏","ㄑ","酥","瓜"] },
+{type:"sort",q:"請將本公司成員的現居住地，由南到北依序排列：",
+ items:["捏","ㄑ","瓜","酥"],ans:["捏","ㄑ","酥","瓜"]},
 
-  { type:"match", q:"抱對蜜大腿就有菇可打，請選出正確的大腿圍？",
-    pairs:{捏:"21",ㄑ:"55",瓜:"16",酥:"15"} },
+{type:"match",q:"抱對蜜大腿就有菇可打，請選出正確的大腿圍？",
+ pairs:{捏:"21",ㄑ:"55",瓜:"16",酥:"15"}},
 
-  { type:"match", q:"請配對地瓜動物園居民的正確數量？",
-    pairs:{貓:"1",天竺鼠:"3",烏龜:"3",魚:"一堆"} },
+{type:"match",q:"請配對地瓜動物園居民的正確數量？",
+ pairs:{貓:"1",天竺鼠:"3",烏龜:"3",魚:"一堆"}},
 
-  { type:"match", q:"請配對正確的老巢？",
-    pairs:{捏:"土耳其",ㄑ:"荷蘭",瓜:"北海道",酥:"墨西哥"} },
+{type:"match",q:"請配對正確的老巢？",
+ pairs:{捏:"土耳其",ㄑ:"荷蘭",瓜:"北海道",酥:"墨西哥"}},
 
-  { type:"sort", q:"請依大姨媽來的順序，從月初到月底排列：",
-    items:["捏","ㄑ","瓜","酥"],
-    ans:["瓜","捏","酥","ㄑ"] }
+{type:"sort",q:"請依大姨媽來的順序，從月初到月底排列：",
+ items:["捏","ㄑ","瓜","酥"],ans:["瓜","捏","酥","ㄑ"]}
 ];
 
-let i=0, score=0;
+let current=0;
+let score=0;
+let answers=Array(QUESTIONS.length).fill(null);
+
 const app=document.getElementById("app");
+const nav=document.getElementById("nav");
+
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5)}
+
+function buildNav(){
+  nav.innerHTML="";
+  QUESTIONS.forEach((_,i)=>{
+    const b=document.createElement("button");
+    b.textContent=i+1;
+    if(i===current)b.classList.add("active");
+    b.onclick=()=>{current=i;render();}
+    nav.appendChild(b);
+  });
+}
 
 function render(){
-  const q=QUESTIONS[i];
-  app.innerHTML=`<div class="question">第 ${i+1} 題<br>${q.q}</div>`;
-  if(q.type==="single"||q.type==="multi") renderChoice(q);
-  if(q.type==="sort") renderSort(q);
-  if(q.type==="match") renderMatch(q);
+  buildNav();
+  const q=QUESTIONS[current];
+  app.innerHTML=`<div class="question">第 ${current+1} 題<br>${q.q}</div>`;
+
+  if(q.type==="single"||q.type==="multi"){
+    let selected=answers[current]||[];
+    const opts=shuffle(q.opts);
+    opts.forEach(o=>{
+      const d=document.createElement("div");
+      d.className="card";
+      d.textContent=o;
+      if(selected.includes(o))d.classList.add("selected");
+      d.onclick=()=>{
+        if(q.type==="single")selected=[o];
+        else selected.includes(o)?selected=selected.filter(x=>x!==o):selected.push(o);
+        answers[current]=selected;
+        render();
+      }
+      app.appendChild(d);
+    });
+    addNext();
+  }
+
+  if(q.type==="sort"){
+    let list=answers[current]||shuffle(q.items);
+    const box=document.createElement("div");
+    list.forEach(it=>{
+      const d=document.createElement("div");
+      d.className="card";
+      d.textContent=it;
+      d.draggable=true;
+      d.ondragstart=e=>e.dataTransfer.setData("text",it);
+      d.ondragover=e=>e.preventDefault();
+      d.ondrop=e=>{
+        e.preventDefault();
+        const from=e.dataTransfer.getData("text");
+        const newList=[...list];
+        const i1=newList.indexOf(from);
+        const i2=newList.indexOf(it);
+        [newList[i1],newList[i2]]=[newList[i2],newList[i1]];
+        answers[current]=newList;
+        render();
+      }
+      box.appendChild(d);
+    });
+    app.appendChild(box);
+    addNext();
+  }
+
+  if(q.type==="match"){
+    let match=answers[current]||{};
+    const keys=Object.keys(q.pairs);
+    const values=shuffle(Object.values(q.pairs));
+    keys.forEach(k=>{
+      const row=document.createElement("div");
+      row.className="card";
+      row.textContent=k+" → "+(match[k]||"選擇");
+      row.onclick=()=>{
+        const val=prompt("輸入對應值："+values.join(" / "));
+        if(val)match[k]=val;
+        answers[current]=match;
+        render();
+      }
+      app.appendChild(row);
+    });
+    addNext();
+  }
 }
 
-function renderChoice(q){
-  let sel=[];
-  app.innerHTML+=`<div class="options"></div><button>下一題</button>`;
-  const box=app.querySelector(".options");
-  q.opts.forEach(o=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.textContent=o;
-    d.onclick=()=>{
-      if(q.type==="single"){ sel=[o]; box.querySelectorAll(".card").forEach(c=>c.classList.remove("tap")); }
-      else sel.includes(o)?sel=sel.filter(x=>x!==o):sel.push(o);
-      d.classList.toggle("tap");
-    };
-    box.appendChild(d);
-  });
-  app.querySelector("button").onclick=()=>{
-    if(JSON.stringify(sel.sort())===JSON.stringify(q.ans.sort())) score+=10;
-    next();
-  };
-}
-
-function renderSort(q){
-  let dragging=null;
-  app.innerHTML+=`<div class="sort-box"></div><button>確認</button>`;
-  const box=app.querySelector(".sort-box");
-  q.items.forEach(it=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.textContent=it;
-    d.onpointerdown=()=>{dragging=d; d.classList.add("dragging");};
-    d.onpointerup=()=>{dragging=null; d.classList.remove("dragging");};
-    d.onpointerenter=()=>{ if(dragging&&dragging!==d) box.insertBefore(dragging,d); };
-    box.appendChild(d);
-  });
-  app.querySelector("button").onclick=()=>{
-    const arr=[...box.children].map(x=>x.textContent);
-    if(JSON.stringify(arr)===JSON.stringify(q.ans)) score+=10;
-    next();
-  };
-}
-
-function renderMatch(q){
-  const keys=Object.keys(q.pairs);
-  const vals=Object.values(q.pairs).sort(()=>Math.random()-0.5);
-  app.innerHTML+=`<div class="match-box"></div><button>確認</button>`;
-  const box=app.querySelector(".match-box");
-  keys.forEach(k=>{
-    const row=document.createElement("div");
-    row.className="match-row";
-    row.innerHTML=`<div class="card">${k}</div><div class="match-target"></div>`;
-    box.appendChild(row);
-  });
-  vals.forEach(v=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.textContent=v;
-    d.onpointerdown=()=>d.classList.add("dragging");
-    d.onpointerup=()=>d.classList.remove("dragging");
-    d.onpointerenter=()=>{};
-    app.appendChild(d);
-  });
-  app.querySelector("button").onclick=()=>{ score+=10; next(); };
+function addNext(){
+  const b=document.createElement("button");
+  b.className="main";
+  b.textContent=current===QUESTIONS.length-1?"完成":"下一題";
+  b.onclick=next;
+  app.appendChild(b);
 }
 
 function next(){
-  i++;
-  if(i<QUESTIONS.length) render();
-  else app.innerHTML=`<div class="question">🎉 完成 🎉<br><br>你的得分：<b>${score} / 100</b></div>`;
+  const q=QUESTIONS[current];
+  const a=answers[current];
+  let correct=false;
+
+  if(q.type==="single"||q.type==="multi")
+    correct=JSON.stringify((a||[]).sort())===JSON.stringify(q.ans.sort());
+
+  if(q.type==="sort")
+    correct=JSON.stringify(a)===JSON.stringify(q.ans);
+
+  if(q.type==="match"){
+    correct=true;
+    for(let k in q.pairs)if(a?.[k]!==q.pairs[k])correct=false;
+  }
+
+  if(correct)score+=10;
+
+  if(current<QUESTIONS.length-1){current++;render();}
+  else showResult();
+}
+
+function showResult(){
+  app.innerHTML=`<div class="result">🎉 完成 🎉<br><br>你的得分：<b>${score}/100</b></div>`;
 }
 
 render();
-</script>
 
+</script>
 </body>
 </html>
